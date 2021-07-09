@@ -30,35 +30,41 @@ class EnvState:
 
 @dataclasses.dataclass(frozen=True)
 class PDDLDynamics(object):
-    __slots__ = ("discount", "use_cost_reward", "heuristic")
+    __slots__ = ("discount", "use_cost_reward", "heuristic","invalid_action_cost")
     discount: np.ndarray
     use_cost_reward: bool
     heuristic: Optional[Heuristic]
+    invalid_action_cost: bool
 
     def __init__(self,
                  discount: float = 1.,
                  use_cost_reward: bool = True,
-                 heuristic: Optional[Heuristic] = None):
+                 heuristic: Optional[Heuristic] = None,
+                 invalid_action_cost: bool = False):
         super().__setattr__("discount", discount)
         super().__setattr__("use_cost_reward", use_cost_reward)
         super().__setattr__("heuristic", heuristic)
+        super().__setattr__("invalid_action_cost", invalid_action_cost)
 
     def __call__(self, state: EnvState, action: Action) -> dm_env.TimeStep:
         literals = state.literals
         problem = state.problem
 
+        reward = -1. if self.use_cost_reward else 0.
         if action is None:
             # no-op
             next_literals = literals
         else:
-            if not action.applicable(literals):
-                raise InvalidAction(
-                    f"Preconditions not satisfied.\n\nAction: {action}\n\nState literals: {literals}")
-
-            next_literals = action.apply(literals)
+            if action.applicable(literals):
+                next_literals = action.apply(literals)
+            else:
+                if not self.invalid_action_cost:
+                    raise InvalidAction(f"Preconditions not satisfied.\n\nAction: {action}\n\nState literals: {literals}")
+                next_literals = literals
+                if self.use_cost_reward:
+                    reward -= 2
 
         goal_reached = problem.goal_satisfied(next_literals)
-        reward = -1. if self.use_cost_reward else 0.
         if goal_reached:
             reward += 1
 
