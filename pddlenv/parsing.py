@@ -1,7 +1,7 @@
 from typing import FrozenSet, Tuple, Type
 
-import pyperplan
-from pddl import pddl
+from pyperplan.pddl.parser import Parser
+from pyperplan.pddl import pddl
 
 import pddlenv.base as base
 
@@ -72,7 +72,7 @@ def parse_pyperplan_domain(domain: pddl.Domain) -> Type["base.Problem"]:
 
 
 def parse_pddl_domain(domain_path: str) -> Type["base.Problem"]:
-    parser = pyperplan.Parser(domain_path)
+    parser = Parser(domain_path)
     d = parser.parse_domain()
     return parse_pyperplan_domain(d)
 
@@ -89,7 +89,7 @@ def parse_pyperplan_problem(problem: pddl.Problem
 
 def parse_pddl_problem(domain_path: str,
                        problem_path: str) -> Tuple[FrozenSet["base.Predicate"], "base.Problem"]:
-    parser = pyperplan.Parser(domain_path, problem_path)
+    parser = Parser(domain_path, problem_path)
     d = parser.parse_domain()
     p = parser.parse_problem(d)
     return parse_pyperplan_problem(p)

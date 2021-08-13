@@ -16,7 +16,7 @@ from typing import (AbstractSet, ClassVar, Collection, Dict, FrozenSet, Iterable
 # Grounding each lifted action (move city1 city2) is done by instantiating the class.
 #
 
-from pddl import pddl
+from pyperplan.pddl import pddl
 
 from pddlenv import parsing
 

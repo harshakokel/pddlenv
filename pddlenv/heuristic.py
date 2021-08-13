@@ -3,7 +3,7 @@ import functools
 import itertools
 from typing import AbstractSet, FrozenSet, Optional, Tuple
 
-import pyperplan
+from pyperplan.planner import HEURISTICS
 
 from .base import Action, Predicate, Problem
 
@@ -28,7 +28,7 @@ def make_heuristic_function(name: str, problem: Problem, cache_maxsize: Optional
         goals=problem.goal,
         operators=actions,
     )
-    heuristic = pyperplan.HEURISTICS[name](task)
+    heuristic = HEURISTICS[name](task)
 
     @functools.lru_cache(maxsize=cache_maxsize)
     def _heuristic(literals: FrozenSet[Predicate]) -> float:
